@@ -1,8 +1,11 @@
 $(function () {
     var left = $('.left');
+    var right = $('.right');
     var bg = $('.bgDiv');
     var leftNav = $('.leftNav');
+    var rightNav = $('.rightNav');
     showNav(left, leftNav, "left");
+    showNav(right,rightNav, "right");
     function showNav(btn, navDiv, direction) {
         btn.on('click', function () {
             bg.css({
@@ -14,7 +17,13 @@ $(function () {
                     left: "0px",
                     transition: "left 1s"
                 });
-            }
+            }else if (direction == "right") {
+                navDiv.css({
+                    right:"0px",
+                    transition:"right 1s"
+                })
+            };
+
         });
     }
     $('span').each(function () {
@@ -31,7 +40,11 @@ $(function () {
         leftNav.css({
             left: "-50%",
             transition: "left .5s"
-        });   
+        });
+        rightNav.css({
+            right: "-50%",
+            transition:"right .5s"
+        })   
         bg.css({
             display: "none",
             transition: "display 1s"

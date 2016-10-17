@@ -156,10 +156,12 @@
     	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
         <title>老板小助手</title>
     	<link href="css/style.css" rel="stylesheet">
+        <link rel="stylesheet" type="text/css" href="css/datedropper.css">
         <script src="js/jquery-2.1.1.min.js"></script>
         <script src="js/nav.js"></script>
         <script src="js/tab.js"></script>
-
+        <script type="text/javascript" src="js/jquery-1.12.3.min.js"></script>
+        <script src="js/datedropper.min.js"></script>
     </head>
     <body>
         <!--《开始》页面整体背景，为了释放抽屉时点击空白处可以调用-->
@@ -187,7 +189,7 @@
         		<li class="before"><img src="img/left.png"></li>
                 <li class="titles"><span>金字招牌大酒楼</span></li>
                 <li class="last"><img src="img/right.png"></li>
-                <li class="rili"><img src="img/rili.png"></li>		
+                <li class="rili" id="main"><input type="text" class="input" id="pickdate" /></li>		
             </ul>
         </div>
         <div class="mian">
@@ -251,7 +253,7 @@
 
                     <table class="payment">
                         <tr>
-                            <td>时段</td>
+                            <td>时段汇总</td>
                             <td>笔数</td>
                             <td>金额</td>
                         </tr>
@@ -275,7 +277,7 @@
                                 }
 
                                  ?>
-                             <td><?php echo count($time_arr)?></td>
+                            <td><?php echo count($time_arr)?></td>
                             <td><?php echo array_sum($time_arr)?></td>
                         </tr>
                                  <?php
@@ -390,5 +392,12 @@
             </div>
         </div>
         <!--《结束》主页面内容-->
+        <script>
+        $("#pickdate").dateDropper({
+            animate: false,
+            format: 'Y-m-d',
+            maxYear: '2020'
+        });
+        </script>
     </body>
 </html>
