@@ -94,14 +94,15 @@ html,body{
 	width: 15%;
 }
 .input{
+
 	border:0px solid #F6F7F7;
 	background-image: url("./../img/rili.png");
 	background-color: #F6F7F7;
+	background-position: center;
 	background-repeat: no-repeat;
-	vertical-align: center;
 	background-size: 30%; 
-	width: 48px;
-	text-indent: 100px;
+	width: 100%;
+	/*text-indent: 100px;*/
 }
 .titles{
 	width: 60%;

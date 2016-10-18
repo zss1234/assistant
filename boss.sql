@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- 主机: localhost
--- 生成日期: 2016 年 10 月 14 日 15:16
+-- 生成日期: 2016 年 10 月 18 日 16:10
 -- 服务器版本: 5.5.40
 -- PHP 版本: 5.4.33
 
@@ -88,9 +88,9 @@ CREATE TABLE IF NOT EXISTS `skjl` (
 --
 
 INSERT INTO `skjl` (`id`, `dp_id`, `zd_id`, `price`, `end_time`, `payment`) VALUES
-(1, 1, 10000, 50, '2016-10-14 14:31:21', '现金'),
-(2, 2, 10000, 100, '2016-10-14 14:31:50', '支付宝'),
-(3, 2, 10000, 120, '2016-10-14 14:31:50', '微信');
+(1, 1, 10001, 50, '2016-10-14 14:31:21', '现金'),
+(2, 1, 10000, 40, '2016-10-14 11:52:53', '支付宝'),
+(3, 1, 10000, 60, '2016-10-14 11:52:53', '微信');
 
 -- --------------------------------------------------------
 
@@ -111,14 +111,15 @@ CREATE TABLE IF NOT EXISTS `xsjl` (
   `dp_id` int(11) NOT NULL COMMENT '店铺编号',
   `category` varchar(32) NOT NULL COMMENT '类别名称',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=gbk COMMENT=' 销售记录表' AUTO_INCREMENT=2 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=gbk COMMENT=' 销售记录表' AUTO_INCREMENT=3 ;
 
 --
 -- 转存表中的数据 `xsjl`
 --
 
 INSERT INTO `xsjl` (`id`, `cp_name`, `num`, `price`, `sum_price`, `xsje`, `start_time`, `end_time`, `zd_id`, `dp_id`, `category`) VALUES
-(1, '干煸豆角', 2, 20, 40, 38, '2016-10-14 08:52:42', '2016-10-14 11:52:53', 10000, 20000, '小炒');
+(1, '干煸豆角', 2, 20, 40, 38, '2016-10-14 08:52:42', '2016-10-14 11:52:53', 10000, 1, '小炒'),
+(2, '火爆虾尾', 1, 62, 62, 62, '2016-10-14 08:52:42', '2016-10-14 11:52:53', 10000, 1, '小炒');
 
 -- --------------------------------------------------------
 
@@ -140,7 +141,7 @@ CREATE TABLE IF NOT EXISTS `zd` (
 --
 
 INSERT INTO `zd` (`zd_id`, `dp_id`, `ycrs`, `xsje`, `jz_time`) VALUES
-(10000, 20000, 1, 38, '2016-10-14 11:54:37');
+(10000, 1, 1, 100, '2016-10-14 11:52:53');
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;

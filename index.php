@@ -130,7 +130,7 @@
     *4.确保当前页面选择日期
     */ 
 
-    for ($i=0; $i < 24; $i++) { 
+    for ($i=9; $i < 22; $i++) { 
         // echo $i."&nbsp;&nbsp;";
         // $time_sql = "SELECT * FROM `orders` WHERE name ='金子招牌大酒楼' AND DATE(`date`) = DATE(NOW()) AND DATE_FORMAT(`date`,'%H') = 7 ";
         $time_sql = "SELECT * FROM `orders` WHERE DATE_FORMAT(`date`,'%H') = ".$i." AND name = '金字招牌大酒楼' AND DATE(`date`) = DATE(NOW())";
@@ -160,6 +160,7 @@
         <script src="js/jquery-2.1.1.min.js"></script>
         <script src="js/nav.js"></script>
         <script src="js/tab.js"></script>
+        <script src="js/rili.js"></script>
         <script type="text/javascript" src="js/jquery-1.12.3.min.js"></script>
         <script src="js/datedropper.min.js"></script>
     </head>
@@ -189,9 +190,14 @@
         		<li class="before"><img src="img/left.png"></li>
                 <li class="titles"><span>金字招牌大酒楼</span></li>
                 <li class="last"><img src="img/right.png"></li>
-                <li class="rili" id="main"><input type="text" class="input" id="pickdate" /></li>		
+                <li class="rili" id="main"><input type="text" class="input" id="pickdate" onMouseOut=reloads()/></li>		
             </ul>
         </div>
+        <script>
+            function reloads(){
+                location.reload();
+            }
+        </script>
         <div class="mian">
 		  <div class="mian_biaodan">
 			<ul class="biaodan">
@@ -258,7 +264,7 @@
                             <td>金额</td>
                         </tr>
                         <?php 
-                            for ($i=0; $i < 24; $i++) { 
+                            for ($i=9; $i < 22; $i++) { 
                                 // echo $i."&nbsp;&nbsp;";
                                  ?>
                         <tr>
