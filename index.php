@@ -1,6 +1,4 @@
 <?php
-    https://api.weixin.qq.com/cgi-bin/user/info?access_token=ACCESS_TOKEN&openid=OPENID&lang=zh_CN;
-    exit;
     //报错级别
     error_reporting(0);
     // 设置字符集
@@ -16,16 +14,6 @@
 ?>
 
 <?php 
-    // //查询账单金额
-    // $sql = "select * from zd where date_format(`jz_time`,'%Y%m%d') = 20161014 and dp_id = 1";
-    // echo $sql;
-    // $query = $mysqli->query($sql);
-    // $sum = 0;
-    // while (@$row = $query->fetch_array()) {
-    //     $sum+=$row[xsje];
-    // }
-    // echo $sum;
-    // exit;
     // 查询当天的营业额总数
     $sql="SELECT income FROM `orders` WHERE DATE(`date`) =DATE(NOW())";
     $query = $mysqli->query($sql);
