@@ -8,7 +8,8 @@ $oauth2Url = "https://api.weixin.qq.com/sns/oauth2/access_token?appid=$appid&sec
 $oauth2 = getJson($oauth2Url);
   
 //第二步:根据全局access_token和openid查询用户信息  
-$access_token = $oauth2["access_token"];  
+$access_token = $oauth2["access_token"];
+echo $access_token;  
 $openid = $oauth2['openid'];  
 $get_user_info_url = "https://api.weixin.qq.com/cgi-bin/user/info?access_token=$access_token&openid=$openid&lang=zh_CN";
 $userinfo = getJson($get_user_info_url);
