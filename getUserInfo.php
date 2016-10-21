@@ -2,7 +2,8 @@
 $appid = "wxdf937732890770c1";  
 $secret = "d4624c36b6795d1d99dcf0547af5443d";  
 $code = $_GET["code"];
- 
+ echo $code;
+ exit;
 //第一步:取得openid
 $oauth2Url = "https://api.weixin.qq.com/sns/oauth2/access_token?appid=$appid&secret=$secret&code=$code&grant_type=authorization_code";
 $oauth2 = getJson($oauth2Url);
