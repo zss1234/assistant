@@ -13,7 +13,7 @@ $token = json_decode(file_get_contents($oauth2Url));
 $access_token = $token->access_token;
 $openid		  = $token->openid;
 
-echo $access_token."<br>".$openid;	
+echo "aa".$access_token."<br>".$openid;	
 
 // $access_token = "9F_K9CcZU35ICCJT0NsnaP3t9g03tjOIRNGqeJjWw-6Ikr_rsDGZ8mxWxRDGSFh6rVDXFq1jXnfRDqV3PqtB8oM1XN7vY1EBuIDvbS0isr7sgU2K7sreM_N8BnO3IbE6EGGaABAKMM";
 // $openid = "";
