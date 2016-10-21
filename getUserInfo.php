@@ -32,7 +32,7 @@
     $user_obj = json_decode($res,true);  
     $_SESSION['user'] = $user_obj;  
     print_r($user_obj);
-    $print_r($user_obj()['nickname']);
+    $print_r($user_obj('nickname'));
     $print_r($user_obj['headimgurl']);
 
       
