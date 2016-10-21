@@ -1,6 +1,6 @@
 <?php 
-$appid = "wx66e0b4d53dccd1ac";  
-$secret = "717ea0dbab790903ee37cf2604d158c3";  
+$appid = "wxdf937732890770c1";  
+$secret = "d4624c36b6795d1d99dcf0547af5443d";  
 $code = $_GET["code"];
  
 //第一步:取得openid
