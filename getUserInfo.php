@@ -27,7 +27,7 @@
     curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);  
     $res = curl_exec($ch);  
     curl_close($ch);  
-      
+    print_r($res);  
     //解析json  
     $user_obj = json_decode($res,true);  
     $_SESSION['user'] = $user_obj;  
