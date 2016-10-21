@@ -16,7 +16,7 @@ class wechatCallbackapiTest
 
         //valid signature , option
         if($this->checkSignature()){
-            header('content-type:text');
+            header('content-type:text');//加上就不会出现token验证失败
             echo $echoStr;
             exit;
         }
