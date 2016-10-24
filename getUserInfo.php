@@ -1,6 +1,6 @@
 <?php
     //http://www.111cn.net/callback.php
-      
+    header('Content-Type: text/html; charset=utf-8');  
     $appid = "wxdf937732890770c1";  
     $secret = "d4624c36b6795d1d99dcf0547af5443d";  
     $code = $_GET["code"];  
@@ -33,5 +33,5 @@
     // print_r($user_obj);
     echo $user_obj[nickname];
     echo $user_obj[headimgurl];
-    include_once ("index.html");
     ?>  
+    
