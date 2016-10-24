@@ -31,10 +31,12 @@
     $user_obj = json_decode($res,true);  
     $_SESSION['user'] = $user_obj;  
     // print_r($user_obj);
-    foreach ($user_obj as $key => $value) {
-        echo $user_obj[nickname];//输出昵称
-        echo $user_obj[headimgurl];//输出头像路径
-    }
+    echo $user_obj[nickname];
+    echo $user_obj[headimgurl];
+    // foreach ($user_obj as $key => $value) {
+    //     echo $user_obj[nickname];//输出昵称
+    //     echo $user_obj[headimgurl];//输出头像路径
+    // }
     
 
       
