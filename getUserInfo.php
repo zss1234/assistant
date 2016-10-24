@@ -32,7 +32,7 @@
     $_SESSION['user'] = $user_obj;  
     // print_r($user_obj);
     foreach ($user_obj as $key => $value) {
-        echo $value;
+        echo $key."&nbsp;&nbsp;".$value;
     }
     
 
