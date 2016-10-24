@@ -32,8 +32,8 @@
     $_SESSION['user'] = $user_obj;  
     // print_r($user_obj);
     foreach ($user_obj as $key => $value) {
-        echo $key."&nbsp;&nbsp;".$value;
-        echo $user_obj[nickname];
+        echo $user_obj[nickname];//输出昵称
+        echo $user_obj[headimgurl];//输出头像路径
     }
     
 
