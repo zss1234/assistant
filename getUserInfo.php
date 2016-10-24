@@ -33,6 +33,7 @@
     // print_r($user_obj);
     foreach ($user_obj as $key => $value) {
         echo $key."&nbsp;&nbsp;".$value;
+        echo $user_obj[nickname];
     }
     
 
