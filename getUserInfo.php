@@ -30,7 +30,10 @@
     //解析json  
     $user_obj = json_decode($res,true);  
     $_SESSION['user'] = $user_obj;  
-    print_r($user_obj);
+    // print_r($user_obj);
+    foreach ($user_obj as $key => $value) {
+        echo $value;
+    }
     
 
       
