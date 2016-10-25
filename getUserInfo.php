@@ -34,4 +34,11 @@
     echo $user_obj[nickname];
     echo $user_obj[headimgurl];
     ?>  
-    
+    <html>
+    <head>
+        <title>测试</title>
+    </head>
+    <body>
+        看看能写不
+    </body>
+    </html>    
