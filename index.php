@@ -12,3 +12,11 @@
     
     header("Location:".$url);
     ?>
+    <html>
+    <head>
+        <title>测试</title>
+    </head>
+    <body>
+        看看能写不
+    </body>
+    </html>
