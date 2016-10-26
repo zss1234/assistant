@@ -1,0 +1,37 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<title>有趣的日期和时间选择插件(很适合手机使用的哦)</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+<link rel="stylesheet" type="text/css" href="css/datedropper.css">
+<style type="text/css">
+.input{
+	padding:6px;
+	border:0px solid #FFFFFF;
+	background-image: url("rili.png");
+	background-repeat: no-repeat;
+	background-size: 30%;
+	text-indent: 100px;
+}
+</style>
+
+</head>
+
+<body>
+
+		<span id="main"><input type="text" class="input" id="pickdate" /></span>	
+
+<script type="text/javascript" src="js/jquery-1.12.3.min.js"></script>
+<script src="js/datedropper.min.js"></script>
+<script src="js/rili.js"></script>
+<script>
+$("#pickdate").dateDropper({
+	animate: false,
+	format: 'Y-m-d',
+	maxYear: '2020'
+});
+</script>
+
+</body>
+</html>
