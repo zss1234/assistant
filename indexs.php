@@ -9,65 +9,154 @@
     //获取当前时间   例如2016-10-11  获取页面所选时间
     $time = time();
     $date =  date("Y-m-d",$time);
+    $date = "2016-09-26";
     // 获取页面上的用户应该是在session中保存的
 
     // 获取店铺名称，先判断该SRQuery数据库的SubStore表中name字段中是否存在该店铺名称
     $dp_name = $_GET['dp_name'];
-    $dp_name = "测试";
+    $dp_name = conver2gbk("测试");
     // 1.存在就直接查询2.不存在就要添加这个店铺名称
     // 问题分析：现在就是有两个数据库，并且需要对两个数据库进行操作
     // 引入基本数据库连接文件文件
+
+    // 转换数据库的编码格式
 function conver2utf8($string){
     return iconv("gbk", "utf-8", $string);
 }
 function conver2gbk($string){
     return iconv("utf-8", "gbk", $string);
 }
-
+// 1.
+    // 连接到店铺表，查询店铺名称是否存在
     include_once ("connects.php");
     $name_sql = "select * from SubStore where Name = '".$dp_name."'";
     $name_exec = odbc_exec($conn, $name_sql);
-    echo odbc_fetch_row($name_exec);
-    if (odbc_fetch_row($name_exec)) {
-        echo "向数据库中添加这个店铺名称";
-    }else{
-        echo "向数据库中添加这个店铺名称";
+    // 如果没有查询到该记录，就像数据库中添加该店铺名称
+    if(!odbc_num_rows($name_exec)){
+        $insert_name = "insert into SubStore (Name,ConStr,IsCY,IsKF,IsXY) values ('".$dp_name."','null',0,0,0)";
+        $insert_name_exec = odbc_exec($conn, $insert_name);
+        odbc_close($conn);
     }
-
+    // echo odbc_num_rows($name_exec);//输出记录数
+    // $row = odbc_fetch_array($name_exec);
+    // echo conver2utf8($row['Name']);//输出店铺的名称
 ?>
 
-<?php 
-    // 引入数据库连接文件文件
-    include_once ("connect.php");
-    $zd_sql = "select * from ftfx";
-    $zd_exec = odbc_exec($conn, $zd_sql);
-    echo odbc_fetch_row($zd_exec);
-    while (odbc_fetch_row($zd_exec)) {
-        $substore = odbc_result($zd_exec, "SubStore");
-        echo conver2utf8($substore)."<br>";
-      }
-?>
-
-<?php 
-    // 问题 ：查询所选日期的总销售金额，账单笔数，均单金额
-    // 获取的条件：店铺编号，所选的日期
-    // 问题分析：首先根据条件查询账单表
-    // $dp_id = $_GET['dp_id']  $jz_time = $_GET['jz_time']
-    // $dp_id = $_GET['dp_id'];  
-    // $jz_time = $_GET['jz_time'];
-    $dp_id = 1;
-    $jz_time = 20161014;
-    $day_sql = "select * from zd where date_format(`jz_time`,'%Y%m%d') = ".$jz_time." and dp_id = ".$dp_id;
-    $day_query = $mysqli->query($day_sql);
-    $day_sum = 0;
-    $day_num = 0;
-    while (@$day_row = $day_query->fetch_array()) {
-        $day_sum+=$day_row[xsje];
-        $day_num++;
+<?php
+    // 2.根据房台分析分析表查询账单信息
+    include_once("connect.php");
+    // $sql = "select jzdt from ftfx where SUBSTRING(jzdt, 1, 11) = '2016-09-26' and SubStore = '测试'";
+    $ftfx_sql = "select SubStore,ysje,krrs,jzdt from ftfx where SUBSTRING(jzdt, 1, 11) = '".$date."' and SubStore = '".$dp_name."'";
+    $ftfx_exec = odbc_exec($conn, $ftfx_sql);
+    $ftfx_sum = 0;
+    $ftfx_num = odbc_num_rows($ftfx_exec);//根据记录数来查询账单笔数，一个账单对应一条信息
+    while (@$ftfx_row = odbc_fetch_array($ftfx_exec)) {
+        $ftfx_sum += $ftfx_row[ysje];
     }
-    // echo $day_sum;                       //总的销售额
-    // echo $day_num;                       //账单笔数
-    // echo round($day_sum/$day_num);
+    // echo $ftfx_sum."<br>";//总的销售额
+    // echo $ftfx_num."<br>";//账单笔数
+    // echo round($ftfx_sum/$ftfx_num);//单均
+?>
+<?php 
+    // 3.收款方式
+    $skfs_sql = "select skfs from skjl where jzrq = '".$date."' and SubStore = '".$dp_name."' group by skfs";
+    $skfs_exec = odbc_exec($conn, $skfs_sql);
+    $skfs_sum = array();
+    $skfs_num = array();
+    $num = 0;
+    while (@$skfs_row = odbc_fetch_array($skfs_exec)) {
+        $num++;
+        // echo  conver2utf8($skfs_row[skfs])."&nbsp;";//输出收款方式
+        $skjl_sql = "select je from skjl where jzrq = '".$date."' and skfs = '".$skfs_row[skfs]."'";
+        $skjl_exec = odbc_exec($conn, $skjl_sql);
+        $skjl_sum = 0;
+        $skjl_num = 0;
+        while (@$skjl_row = odbc_fetch_array($skjl_exec)) {
+            $skjl_sum += $skjl_row[je];
+            $skjl_num++;
+        }
+        // echo $skfs_sum[$num] = $skjl_sum."&nbsp;";//支付方式分类金额
+        // echo $skfs_num[$num] = $skjl_num."<br>";//支付方式分类订单数量
+    }
+    // echo array_sum($skfs_sum)."&nbsp;&nbsp;&nbsp;";//支付方式总金额
+    // echo array_sum($skfs_num);//支付方式分类总订单数量
+?>
+<?php 
+    // 4.时段汇总
+    $time_num = 0;
+    $sum_time = 0;//其实最主要的是上面的笔数 因为总金额就是当日的营业总金额营业总额根据不同查询方式是不会变化的
+    for ($i=9; $i < 22; $i++) { 
+        // echo $i."&nbsp;&nbsp;";
+        $time_sql = "select ysje from ftfx where SUBSTRING(jzdt, 1, 11) = '".$date."' and SUBSTRING(jzdt, 12, 2) = '".$i."' and SubStore = '".$dp_name."'";
+        $time_exec = odbc_exec($conn, $time_sql);
+        $time_arr = array();
+        $time = 0; 
+        while ($time_row = odbc_fetch_array($time_exec)) {
+            $time_arr[$time] = $time_row[ysje];
+            $time++;
+        }
+        // echo array_sum($time_arr)."&nbsp;&nbsp;";//该时间段的销售总金额
+        // echo count($time_arr);//该时间段的销售总笔数
+        // echo "<br>";
+        $time_num+=count($time_arr);
+        $sum_time+=array_sum($time_arr);
+    }
+    // echo $time_num;//总笔数
+    // echo $sum_time;//总金额
+?>
+<?php
+// 5.菜类汇总
+// SELECT lbname FROM jcfx WHERE SUBSTRING(jzrq, 1, 11) = '2016-09-26' AND SubStore = '测试' GROUP BY lbname
+
+    $category_sql = "SELECT lbname FROM jcfx WHERE SUBSTRING(jzrq, 1, 11) = '".$date."' AND SubStore = '".$dp_name."' GROUP BY lbname";
+    $category_exec = odbc_exec($conn, $category_sql);
+    $category_arr = array();
+    $category = 0;
+    $category_num = 0;
+    while ($category_row = odbc_fetch_array($category_exec)) {
+
+        // echo conver2utf8($category_row[lbname])."<br>";//菜类名称
+
+        $cate_sql = "SELECT * FROM jcfx WHERE SUBSTRING(jzrq, 1, 11) = '".$date."' AND SubStore = '".$dp_name."' AND lbname = '".$category_row[lbname]."'";
+        $cate_exec = odbc_exec($conn, $cate_sql);
+        $cate_arr = array();
+        $cate = 0;
+        while ($cate_row = odbc_fetch_array($cate_exec)) {
+            $cate_arr[$cate] += $cate_row[xsje];
+            $cate++;
+        }
+        // echo array_sum($cate_arr)."&nbsp;&nbsp;&nbsp;";//该菜类总销售金额
+        // echo count($cate_arr);//该菜类总销售数量
+        // echo "<br>";
+        $category_num += count($cate_arr);
+    }
+    // echo $category_num;//总共销售菜类数量
+?>
+<?php 
+    // 6.菜品汇总
+    $cpname_sql = "SELECT jcname FROM jcfx WHERE SUBSTRING(jzrq, 1, 11) = '".$date."' AND SubStore = '".$dp_name."' GROUP BY jcname";
+    $cpname_exec = odbc_exec($conn, $cpname_sql);
+    $cpname_arr = array();
+    $cpname = 0;
+    $cpname_num = 0;
+    while ($cpname_row = odbc_fetch_array($cpname_exec)) {
+
+        // echo conver2utf8($cpname_row[jcname])."<br>";//菜品名称
+        $cp_sql = "SELECT * FROM jcfx WHERE SUBSTRING(jzrq,1,11)= '".$date."' AND SubStore = '".$dp_name."' AND jcname = '".$cpname_row[jcname]."'";
+        $cp_exec = odbc_exec($conn,$cp_sql);
+        $cp_arr = array();
+        $cp = 0;
+        while ($cp_row = odbc_fetch_array($cp_exec)) {
+            $cp_arr[$cp] += $cp_row[xsje];
+            $cp++;
+        }
+        // echo array_sum($cp_arr)."&nbsp;&nbsp;&nbsp;";//该菜类总销售金额
+        // echo count($cp_arr);//该菜类总销售数量
+        // echo "<br>";
+        $cpname_num += count($cp_arr);
+    }
+    // echo $cpname_num;//总共销售菜类数量
+
 ?>
 <!DOCTYPE html>
 <html>
@@ -92,10 +181,10 @@ function conver2gbk($string){
         <div class="leftNav">
             <div class="vip">
 <?php 
-    $unionid = "oZcVLv2a_6Y7TkDS-wNpmANjAySs";
-    $user_sql = "SELECT * FROM user WHERE unionid = '".$unionid."'";  
-    $user_query = $mysqli->query($user_sql);
-    $user_row = $user_query->fetch_array();
+    // $unionid = "oZcVLv2a_6Y7TkDS-wNpmANjAySs";
+    // $user_sql = "SELECT * FROM user WHERE unionid = '".$unionid."'";  
+    // $user_query = $mysqli->query($user_sql);
+    // $user_row = $user_query->fetch_array();
     // echo $user_row[headimgurl];输出头像连接地址
 ?>
                 <img src="<?php echo $user_row[headimgurl]?>">
@@ -325,52 +414,48 @@ function conver2gbk($string){
                             <td>数量</td>
                             <td>金额</td>
                         </tr>
-<?php
-// 菜名汇总     菜品名称    数量      金额（xsje）
-    // 分析：菜品类别 是根据名称进行分类（group by）
-    //       数量     是销售该菜品的数量
-    //       金额     是该菜品的销售金额
 
-    $cpname_sql = "SELECT * FROM `xsjl` WHERE date_format(`end_time`,'%Y%m%d') = ".$jz_time." AND dp_id = ".$dp_id." GROUP BY `cp_name`";
-    $cpname_query = $mysqli->query($cpname_sql);
+
+<?php 
+    // 6.菜品汇总
+    $cpname_sql = "SELECT jcname FROM jcfx WHERE SUBSTRING(jzrq, 1, 11) = '".$date."' AND SubStore = '".$dp_name."' GROUP BY jcname";
+    $cpname_exec = odbc_exec($conn, $cpname_sql);
     $cpname_arr = array();
     $cpname = 0;
     $cpname_num = 0;
-    while ($cpname_row = $cpname_query->fetch_array()) {
-?>      
+    while ($cpname_row = odbc_fetch_array($cpname_exec)) {
+?>        
                         <tr>
-                            <td><?php echo $cpname_row[cp_name]?></td>
-     
-
+                            <td><?php echo conver2utf8($cpname_row[jcname])?></td>
+                            
 <?php
-        // echo $cpname_row[cp_name];//菜类名称
-        $cp_sql = "SELECT * FROM `xsjl` WHERE date_format(`end_time`,'%Y%m%d') = ".$jz_time." AND dp_id = ".$dp_id." AND `cp_name` = '".$cpname_row[cp_name]."'";
-        $cp_query = $mysqli->query($cp_sql);
+        // echo conver2utf8($cpname_row[jcname])."<br>";//菜品名称
+        $cp_sql = "SELECT * FROM jcfx WHERE SUBSTRING(jzrq,1,11)= '".$date."' AND SubStore = '".$dp_name."' AND jcname = '".$cpname_row[jcname]."'";
+        $cp_exec = odbc_exec($conn,$cp_sql);
         $cp_arr = array();
         $cp = 0;
-        while ($cp_row = $cp_query->fetch_array()) {
+        while ($cp_row = odbc_fetch_array($cp_exec)) {
             $cp_arr[$cp] += $cp_row[xsje];
             $cp++;
         }
-?>
+?>        
                             <td><?php echo count($cp_arr)?></td>
-                            <td><?php echo array_sum($cp_arr)?></td>
+                            <td><?php echo array_sum($cp_arr) ?></td>
                         </tr>        
 <?php                        
         // echo array_sum($cp_arr)."&nbsp;&nbsp;&nbsp;";//该菜类总销售金额
         // echo count($cp_arr);//该菜类总销售数量
         // echo "<br>";
         $cpname_num += count($cp_arr);
-        $cpprice_num += array_sum($cp_arr);
     }
     // echo $cpname_num;//总共销售菜类数量
-    // echo $cpprice_num;//总销售金额
-?>  
+
+?>                        
                         <tr>
                             <td>汇总</td>
                             <td><?php echo $cpname_num?></td>
-                            <td><?php echo $cpprice_num?></td>
-                        </tr>                                                       
+                            <td></td>
+                        </tr>
                     </table>
                 </div>
             </div>
