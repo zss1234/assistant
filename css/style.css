@@ -103,7 +103,7 @@ html,body{
 	background-repeat: no-repeat;
 	background-size: 30%; 
 	width: 100%;
-	/*text-indent: 100px;*/
+	text-indent: 100px;
 }
 .titles{
 	width: 60%;

@@ -219,15 +219,15 @@ function conver2gbk($string){
 			<ul class="biaodan">
 			  <li style="border-right:1px solid #2E8906">
 				<p style="text-align: center;">营业额</p>
-				<p style="color:#000;font-size:22px;text-align: center;"><b><?php echo $day_sum?></b></p>
+				<p style="color:#000;font-size:22px;text-align: center;"><b><?php echo $ftfx_sum?></b></p>
 			  </li>
 			  <li style="border-right:1px solid #2E8906">
 				<p style="text-align: center;">客单数</p>
-				<p style="color:#000;font-size:22px;text-align: center;"><b><?php echo $day_num?></b></p>
+				<p style="color:#000;font-size:22px;text-align: center;"><b><?php echo $ftfx_num?></b></p>
 			  </li>
 			  <li>
 				<p style="text-align: center;">单均</p>
-				<p style="color:#000;font-size:22px;text-align: center;"><b><?php echo round($day_sum/$day_num)?></b></p>
+				<p style="color:#000;font-size:22px;text-align: center;"><b><?php echo round($ftfx_sum/$ftfx_num)?></b></p>
 			  </li>
 			</ul>
 		  </div>
@@ -242,55 +242,48 @@ function conver2gbk($string){
                                 <td>笔数</td>
                                 <td>金额</td>
                             </tr>
-                            
-                            
-<?php
-    // 问题：收款方式汇总 支付方式 笔数 金额 总金额 总笔数
-    // 获取的条件：店铺编号 所选日期   同上
-    // 问题分析:首先根据条件查询收款记录的表然后根据支付方式进行分组查询获取笔数以及相应的金额
-    $pay_sql = "SELECT * FROM `skjl` WHERE date_format(`end_time`,'%Y%m%d') = ".$jz_time." AND dp_id = ".$dp_id ." GROUP BY payment";
-    $pay_query = $mysqli->query($pay_sql);
-    $pay_num = 0;
-    $sum_jine = 0;
-    while (@$pay_row = $pay_query->fetch_array()) {
-        $pay_arr[$pay] = $pay_row[price];
-        $pay++;
-        ?>
+<?php 
+    // 3.收款方式
+    $skfs_sql = "select skfs from skjl where jzrq = '".$date."' and SubStore = '".$dp_name."' group by skfs";
+    $skfs_exec = odbc_exec($conn, $skfs_sql);
+    $skfs_sum = array();
+    $skfs_num = array();
+    $num = 0;
+    while (@$skfs_row = odbc_fetch_array($skfs_exec)) {
+        $num++;
+?>        
                             <tr>
-                                <td><?php echo $pay_row[payment]?></td>
-        <?php
-        // echo $pay_row[payment];               //支付方式名称          
-        $pay_sum_sql = "SELECT * FROM `skjl` WHERE date_format(`end_time`,'%Y%m%d') = ".$jz_time." AND payment = '".$pay_row[payment]."' AND dp_id = ".$dp_id ;
-        $pay_sum_query = $mysqli->query($pay_sum_sql);
-        $pay_sum_arr = array();
-        $pay_sum=0;
-        while (@$pay_sum_row = $pay_sum_query->fetch_array()) {
-            $pay_sum_arr[$pay_sum] = $pay_sum_row[price];
-            $pay_sum++;
+                                <td><?php echo conver2utf8($skfs_row[skfs])?></td>
+<?php
+        // echo  conver2utf8($skfs_row[skfs])."&nbsp;";//输出收款方式
+        $skjl_sql = "select je from skjl where jzrq = '".$date."' and skfs = '".$skfs_row[skfs]."'";
+        $skjl_exec = odbc_exec($conn, $skjl_sql);
+        $skjl_sum = 0;
+        $skjl_num = 0;
+        while (@$skjl_row = odbc_fetch_array($skjl_exec)) {
+            $skjl_sum += $skjl_row[je];
+            $skjl_num++;
         }
-        ?>
-                            
-                                <td><?php echo count($pay_sum_arr)?></td>
-                                <td><?php echo array_sum($pay_sum_arr)?></td>
-                            </tr>
-        <?php
-        // echo "&nbsp;&nbsp;".count($pay_sum_arr)."&nbsp;&nbsp;&nbsp;";//支付方式分类订单数量
-        // echo array_sum($pay_sum_arr);                                //支付方式分类金额   
-        // echo "<br>";
-        $pay_num += count($pay_sum_arr);
-        $sum_jine += array_sum($pay_sum_arr);
+        $skfs_sum[$num] = $skjl_sum;
+        $skfs_num[$num] = $skjl_num;
+?>   
+                                <td><?php echo $skfs_num[$num]?></td>
+                                <td><?php echo $skfs_sum[$num]?></td>
+                            </tr>     
+<?php
+        // echo $skfs_sum[$num] = $skjl_sum."&nbsp;";//支付方式分类金额
+        // echo $skfs_num[$num] = $skjl_num."<br>";//支付方式分类订单数量
     }
-    ?>
+    // echo array_sum($skfs_sum)."&nbsp;&nbsp;&nbsp;";//支付方式总金额
+    // echo array_sum($skfs_num);//支付方式分类总订单数量
+?>                            
+
 
                             <tr>
                                 <td>汇总</td>
-                                <td><?php echo $pay_num?></td>
-                                <td><?php echo $sum_jine?></td>
-                            </tr>
-<?php                            
-    // echo $pay_num;
-    // echo $sum_jine;ｅ
-?>
+                                <td><?php echo array_sum($skfs_num)?></td>
+                                <td><?php echo array_sum($skfs_sum)?></td>
+                            </tr>                            
                         </table>
                 </div>
                 <div class="tab-content" style="display:none">
@@ -303,32 +296,31 @@ function conver2gbk($string){
                             <td>笔数</td>
                             <td>金额</td>
                         </tr>
-<?php
 
-    // 时段汇总 时间段 笔数 金额
-    // 获取的条件：时间（年月日时）店铺编号
-    // 问题分析 ：首先根据年月日以及店铺编号查询然后根据时分类汇总
+
+<?php 
+    // 4.时段汇总
     $time_num = 0;
     $sum_time = 0;//其实最主要的是上面的笔数 因为总金额就是当日的营业总金额营业总额根据不同查询方式是不会变化的
-    for ($i=9; $i < 18; $i++) { 
-        ?>
-                        <tr>
-                            <td><?php echo $i?></td>        
-        <?php
+    for ($i=9; $i < 22; $i++) { 
+?>        
+                            <tr>
+                                <td><?php echo $i?></td>
+<?php
         // echo $i."&nbsp;&nbsp;";
-        $time_sql = "SELECT * FROM `xsjl` WHERE date_format(`end_time`,'%Y%m%d') = ".$jz_time." AND dp_id = ".$dp_id ." AND DATE_FORMAT(`end_time`,'%H') = ".$i;
-        $time_query = $mysqli->query($time_sql);
+        $time_sql = "select ysje from ftfx where SUBSTRING(jzdt, 1, 11) = '".$date."' and SUBSTRING(jzdt, 12, 2) = '".$i."' and SubStore = '".$dp_name."'";
+        $time_exec = odbc_exec($conn, $time_sql);
         $time_arr = array();
         $time = 0; 
-        while ($time_row = $time_query->fetch_array()) {
-            $time_arr[$time] = $time_row[xsje];
+        while ($time_row = odbc_fetch_array($time_exec)) {
+            $time_arr[$time] = $time_row[ysje];
             $time++;
         }
 ?>        
-                            <td><?php echo count($time_arr)?></td>
-                            <td><?php echo array_sum($time_arr)?></td>
-                        </tr>
-<?php                        
+                                <td><?php echo count($time_arr)?></td>
+                                <td><?php echo array_sum($time_arr)?></td>
+                            </tr>
+<?php
         // echo array_sum($time_arr)."&nbsp;&nbsp;";//该时间段的销售总金额
         // echo count($time_arr);//该时间段的销售总笔数
         // echo "<br>";
@@ -337,14 +329,12 @@ function conver2gbk($string){
     }
     // echo $time_num;//总笔数
     // echo $sum_time;//总金额
-
-?>                        
-
-                        <tr>
-                            <td>汇总</td>
-                            <td><?php echo $time_num?></td>
-                            <td><?php echo $sum_time?></td>
-                        </tr>                            
+?>                            
+                            <tr>
+                                <td>汇总</td>
+                                <td><?php echo $time_num?></td>
+                                <td><?php echo $sum_time?></td>
+                            </tr>                          
                     </table>
                 </div>
                 <div class="tab-content" style="display:none">
@@ -356,53 +346,49 @@ function conver2gbk($string){
                             <td>数量</td>
                             <td>金额</td>
                         </tr>
-<?php
-// 菜类汇总     菜品类别    数量      金额（xsje）
-    // 分析：菜品类别 是根据菜品进行分类（group by）
-    //       数量     是销售该菜类的数量
-    //       金额     是该菜类的销售金额
 
-    $category_sql = "SELECT * FROM `xsjl` WHERE date_format(`end_time`,'%Y%m%d') = ".$jz_time." AND dp_id = ".$dp_id." GROUP BY `category`";
-    $category_query = $mysqli->query($category_sql);
+
+<?php
+// 5.菜类汇总
+// SELECT lbname FROM jcfx WHERE SUBSTRING(jzrq, 1, 11) = '2016-09-26' AND SubStore = '测试' GROUP BY lbname
+
+    $category_sql = "SELECT lbname FROM jcfx WHERE SUBSTRING(jzrq, 1, 11) = '".$date."' AND SubStore = '".$dp_name."' GROUP BY lbname";
+    $category_exec = odbc_exec($conn, $category_sql);
     $category_arr = array();
     $category = 0;
     $category_num = 0;
-    while ($category_row = $category_query->fetch_array()) {
-?>   
-                        <tr>
-                            <td><?php echo $category_row[category]?></td>
-                                 
-
+    while ($category_row = odbc_fetch_array($category_exec)) {
+?>
+                            <tr>
+                                <td><?php echo conver2utf8($category_row[lbname])?></td>
 <?php
+        // echo conver2utf8($category_row[lbname])."<br>";//菜类名称
 
-        //echo $category_row[category];//菜类名称
-        $cate_sql = "SELECT * FROM `xsjl` WHERE date_format(`end_time`,'%Y%m%d') = ".$jz_time." AND dp_id = ".$dp_id." AND category = '".$category_row[category]."'";
-        $cate_query = $mysqli->query($cate_sql);
+        $cate_sql = "SELECT * FROM jcfx WHERE SUBSTRING(jzrq, 1, 11) = '".$date."' AND SubStore = '".$dp_name."' AND lbname = '".$category_row[lbname]."'";
+        $cate_exec = odbc_exec($conn, $cate_sql);
         $cate_arr = array();
         $cate = 0;
-        while ($cate_row = $cate_query->fetch_array()) {
+        while ($cate_row = odbc_fetch_array($cate_exec)) {
             $cate_arr[$cate] += $cate_row[xsje];
             $cate++;
         }
 ?>
-                            <td><?php echo count($cate_arr)?></td>
-                            <td><?php echo array_sum($cate_arr)?></td>
-                        </tr>        
-<?php                        
+                                <td><?php echo count($cate_arr)?></td>
+                                <td><?php echo array_sum($cate_arr)?></td>
+                            </tr>        
+<?php
         // echo array_sum($cate_arr)."&nbsp;&nbsp;&nbsp;";//该菜类总销售金额
         // echo count($cate_arr);//该菜类总销售数量
         // echo "<br>";
         $category_num += count($cate_arr);
-        $cateprice_num += array_sum($cate_arr);
     }
     // echo $category_num;//总共销售菜类数量
-    // echo $cateprice_num;//总销售金额
-?>
-                        <tr>
-                            <td>汇总</td>
-                            <td><?php echo $category_num?></td>
-                            <td><?php echo $cateprice_num?></td>
-                        </tr>
+?>                            
+                            <tr>
+                                <td>汇总</td>
+                                <td><?php echo $category_num?></td>
+                                <td><?php echo $ftfx_sum?></td>
+                            </tr>
                     </table>
                     
                 </div>
@@ -454,7 +440,7 @@ function conver2gbk($string){
                         <tr>
                             <td>汇总</td>
                             <td><?php echo $cpname_num?></td>
-                            <td></td>
+                            <td><?php echo $ftfx_sum?></td>
                         </tr>
                     </table>
                 </div>
