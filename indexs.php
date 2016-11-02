@@ -169,7 +169,7 @@ function conver2gbk($string){
         <script src="js/jquery-2.1.1.min.js"></script>
         <script src="js/nav.js"></script>
         <script src="js/tab.js"></script>
-        <script src="js/rili.js"></script>
+        <script src="selectuser.js"></script>
         <script type="text/javascript" src="js/jquery-1.12.3.min.js"></script>
         <script src="js/datedropper.min.js"></script>
     </head>
@@ -206,7 +206,7 @@ function conver2gbk($string){
         		<li class="before"><img src="img/left.png"></li>
                 <li class="titles"><span>金字招牌大酒楼</span></li>
                 <li class="last"><img src="img/right.png"></li>
-                <li class="rili" id="main"><input type="text" class="input" id="pickdate" onMouseOut=reloads()/></li>		
+                <li class="rili" id="main"><form><input type="text" class="input" id="pickdate" onchange="showUser(this.value)"/></form></li>		
             </ul>
         </div>
         <script>
@@ -214,6 +214,7 @@ function conver2gbk($string){
                 location.reload();
             }
         </script>
+        
         <div class="mian">
 		  <div class="mian_biaodan">
 			<ul class="biaodan">
@@ -232,165 +233,43 @@ function conver2gbk($string){
 			</ul>
 		  </div>
 		</div>
+        
         <div id="tab">
             <div class="content" id="content">
-                <div class="tab-content" style="display:block">
+                <div id="txtHint" class="tab-content" style="display:block">
                     <h3>支付方式汇总</h3>
-                        <table class="payment">
+                    <table class="payment">
+                        <thead>
                             <tr>
                                 <td>支付方式</td>
                                 <td>笔数</td>
                                 <td>金额</td>
                             </tr>
-<?php 
-    // 3.收款方式
-    $skfs_sql = "select skfs from skjl where jzrq = '".$date."' and SubStore = '".$dp_name."' group by skfs";
-    $skfs_exec = odbc_exec($conn, $skfs_sql);
-    $skfs_sum = array();
-    $skfs_num = array();
-    $num = 0;
-    while (@$skfs_row = odbc_fetch_array($skfs_exec)) {
-        $num++;
-?>        
-                            <tr>
-                                <td><?php echo conver2utf8($skfs_row[skfs])?></td>
-<?php
-        // echo  conver2utf8($skfs_row[skfs])."&nbsp;";//输出收款方式
-        $skjl_sql = "select je from skjl where jzrq = '".$date."' and skfs = '".$skfs_row[skfs]."'";
-        $skjl_exec = odbc_exec($conn, $skjl_sql);
-        $skjl_sum = 0;
-        $skjl_num = 0;
-        while (@$skjl_row = odbc_fetch_array($skjl_exec)) {
-            $skjl_sum += $skjl_row[je];
-            $skjl_num++;
-        }
-        $skfs_sum[$num] = $skjl_sum;
-        $skfs_num[$num] = $skjl_num;
-?>   
-                                <td><?php echo $skfs_num[$num]?></td>
-                                <td><?php echo $skfs_sum[$num]?></td>
-                            </tr>     
-<?php
-        // echo $skfs_sum[$num] = $skjl_sum."&nbsp;";//支付方式分类金额
-        // echo $skfs_num[$num] = $skjl_num."<br>";//支付方式分类订单数量
-    }
-    // echo array_sum($skfs_sum)."&nbsp;&nbsp;&nbsp;";//支付方式总金额
-    // echo array_sum($skfs_num);//支付方式分类总订单数量
-?>                            
+                        </thead>
+                        <tbody id="tabs1">
 
-
-                            <tr>
-                                <td>汇总</td>
-                                <td><?php echo array_sum($skfs_num)?></td>
-                                <td><?php echo array_sum($skfs_sum)?></td>
-                            </tr>                            
-                        </table>
+                        </tbody>
+                    </table>                            
                 </div>
                 <div class="tab-content" style="display:none">
                     <h3>时段汇总</h3>
-                    
-
                     <table class="payment">
                         <tr>
                             <td>时段汇总</td>
                             <td>笔数</td>
                             <td>金额</td>
                         </tr>
-
-
-<?php 
-    // 4.时段汇总
-    $time_num = 0;
-    $sum_time = 0;//其实最主要的是上面的笔数 因为总金额就是当日的营业总金额营业总额根据不同查询方式是不会变化的
-    for ($i=9; $i < 22; $i++) { 
-?>        
-                            <tr>
-                                <td><?php echo $i?></td>
-<?php
-        // echo $i."&nbsp;&nbsp;";
-        $time_sql = "select ysje from ftfx where SUBSTRING(jzdt, 1, 11) = '".$date."' and SUBSTRING(jzdt, 12, 2) = '".$i."' and SubStore = '".$dp_name."'";
-        $time_exec = odbc_exec($conn, $time_sql);
-        $time_arr = array();
-        $time = 0; 
-        while ($time_row = odbc_fetch_array($time_exec)) {
-            $time_arr[$time] = $time_row[ysje];
-            $time++;
-        }
-?>        
-                                <td><?php echo count($time_arr)?></td>
-                                <td><?php echo array_sum($time_arr)?></td>
-                            </tr>
-<?php
-        // echo array_sum($time_arr)."&nbsp;&nbsp;";//该时间段的销售总金额
-        // echo count($time_arr);//该时间段的销售总笔数
-        // echo "<br>";
-        $time_num+=count($time_arr);
-        $sum_time+=array_sum($time_arr);
-    }
-    // echo $time_num;//总笔数
-    // echo $sum_time;//总金额
-?>                            
-                            <tr>
-                                <td>汇总</td>
-                                <td><?php echo $time_num?></td>
-                                <td><?php echo $sum_time?></td>
-                            </tr>                          
-                    </table>
+                    </table>                    
                 </div>
                 <div class="tab-content" style="display:none">
                     <h3>菜类汇总</h3>
-
                     <table class="payment">
                         <tr>
                             <td>菜品类别</td>
                             <td>数量</td>
                             <td>金额</td>
                         </tr>
-
-
-<?php
-// 5.菜类汇总
-// SELECT lbname FROM jcfx WHERE SUBSTRING(jzrq, 1, 11) = '2016-09-26' AND SubStore = '测试' GROUP BY lbname
-
-    $category_sql = "SELECT lbname FROM jcfx WHERE SUBSTRING(jzrq, 1, 11) = '".$date."' AND SubStore = '".$dp_name."' GROUP BY lbname";
-    $category_exec = odbc_exec($conn, $category_sql);
-    $category_arr = array();
-    $category = 0;
-    $category_num = 0;
-    while ($category_row = odbc_fetch_array($category_exec)) {
-?>
-                            <tr>
-                                <td><?php echo conver2utf8($category_row[lbname])?></td>
-<?php
-        // echo conver2utf8($category_row[lbname])."<br>";//菜类名称
-
-        $cate_sql = "SELECT * FROM jcfx WHERE SUBSTRING(jzrq, 1, 11) = '".$date."' AND SubStore = '".$dp_name."' AND lbname = '".$category_row[lbname]."'";
-        $cate_exec = odbc_exec($conn, $cate_sql);
-        $cate_arr = array();
-        $cate = 0;
-        while ($cate_row = odbc_fetch_array($cate_exec)) {
-            $cate_arr[$cate] += $cate_row[xsje];
-            $cate++;
-        }
-?>
-                                <td><?php echo count($cate_arr)?></td>
-                                <td><?php echo array_sum($cate_arr)?></td>
-                            </tr>        
-<?php
-        // echo array_sum($cate_arr)."&nbsp;&nbsp;&nbsp;";//该菜类总销售金额
-        // echo count($cate_arr);//该菜类总销售数量
-        // echo "<br>";
-        $category_num += count($cate_arr);
-    }
-    // echo $category_num;//总共销售菜类数量
-?>                            
-                            <tr>
-                                <td>汇总</td>
-                                <td><?php echo $category_num?></td>
-                                <td><?php echo $ftfx_sum?></td>
-                            </tr>
-                    </table>
-                    
+                    </table>                    
                 </div>
                 <div class="tab-content" style="display:none">
                     <h3>菜品汇总</h3>
@@ -400,49 +279,7 @@ function conver2gbk($string){
                             <td>数量</td>
                             <td>金额</td>
                         </tr>
-
-
-<?php 
-    // 6.菜品汇总
-    $cpname_sql = "SELECT jcname FROM jcfx WHERE SUBSTRING(jzrq, 1, 11) = '".$date."' AND SubStore = '".$dp_name."' GROUP BY jcname";
-    $cpname_exec = odbc_exec($conn, $cpname_sql);
-    $cpname_arr = array();
-    $cpname = 0;
-    $cpname_num = 0;
-    while ($cpname_row = odbc_fetch_array($cpname_exec)) {
-?>        
-                        <tr>
-                            <td><?php echo conver2utf8($cpname_row[jcname])?></td>
-                            
-<?php
-        // echo conver2utf8($cpname_row[jcname])."<br>";//菜品名称
-        $cp_sql = "SELECT * FROM jcfx WHERE SUBSTRING(jzrq,1,11)= '".$date."' AND SubStore = '".$dp_name."' AND jcname = '".$cpname_row[jcname]."'";
-        $cp_exec = odbc_exec($conn,$cp_sql);
-        $cp_arr = array();
-        $cp = 0;
-        while ($cp_row = odbc_fetch_array($cp_exec)) {
-            $cp_arr[$cp] += $cp_row[xsje];
-            $cp++;
-        }
-?>        
-                            <td><?php echo count($cp_arr)?></td>
-                            <td><?php echo array_sum($cp_arr) ?></td>
-                        </tr>        
-<?php                        
-        // echo array_sum($cp_arr)."&nbsp;&nbsp;&nbsp;";//该菜类总销售金额
-        // echo count($cp_arr);//该菜类总销售数量
-        // echo "<br>";
-        $cpname_num += count($cp_arr);
-    }
-    // echo $cpname_num;//总共销售菜类数量
-
-?>                        
-                        <tr>
-                            <td>汇总</td>
-                            <td><?php echo $cpname_num?></td>
-                            <td><?php echo $ftfx_sum?></td>
-                        </tr>
-                    </table>
+                    </table>                    
                 </div>
             </div>
             <div id="menus">
@@ -455,6 +292,34 @@ function conver2gbk($string){
             </div>
         </div>
         <!--《结束》主页面内容-->
+
+<script>
+    $("#pickdate").change(function(){
+        var date=$("#pickdate").val();
+         var str1="";
+         var str2="";
+         var str3="";
+        $.ajax({
+                type: "get",
+                dataType: "json",
+                url: "content.php",//地址
+                data: "q=" + date,
+                success: function(data){
+                    for(var x=0;x<data.length;x++){
+                        for(var y=1;y<data[x].length;y++){
+                            str1 += "<tr>";
+                            str1 += "<td>" + data[x][y].skfs +"</td>";
+                            str1 += "<td>" + data[x][y].ddsl +"</td>";
+                            str1 += "<td>" + data[x][y].flje +"</td>";
+                            str1 += "<tr>";  
+
+                        }
+                    }
+                    $("#tabs1").html(str1);
+                }
+    });
+    });
+</script>
         <script>
         $("#pickdate").dateDropper({
             animate: false,
